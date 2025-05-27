@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+
+<h1>Tessere</h1>
+<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Veritatis amet quis porro minima eius reprehenderit est tenetur nesciunt nam. Id ab velit distinctio porro laboriosam. Ratione sunt aut nam molestias.</p>
+
+<hr>
+
+<h2>Ricerca</h2>
+<div class="row mb-3">
+  <form class="row g-3" action="{% url 'cards' %}" method="get">
+    <div class="col-6">
+      <input type="text" class="form-control" id="q" name="q" placeholder="Inserisci nome o cognome">
+    </div>
+    <div class="col-1">
+      <a type="submit" class="btn btn-primary mb-3">Cerca</a>
+    </div>
+
+    <div class="col-3">
+    <a href="{% url 'cards' %}" class="btn btn-secondary mb-3">Reset</a>
+    </div>
+
+    <div class="col-2">
+      <a href="{% url 'cards_create' %}" class="btn btn-success mb-3">Crea nuova tessera</a>
+    </div>
+  </form>
+
+  
+</div>
+
+<hr>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Nome</th>
+        <th scope="col">Cognome</th>
+        <th scope="col">Categoria</th>
+        <th scope="col">Saldo</th>
+        <th scope="col">Totale speso</th>
+        <th scope="col">Azioni</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in users %}
+    <tr {% if u.total_spent == 0 %}class="table-warning"{% elif u.total_spent < 0 %}class="table-danger"{% endif %}>
+        <th scope="row">{{u.id}}</th>
+        <td><b>{{u.name}}</b></td>
+        <td><b>{{u.surname}}</b></td>
+        <td>{{u.category.name}}</td>
+        <td><b>{{u.total_spent}} €</b></td>
+        <td>{{u.negative_balance}} €</td>
+
+        <td>
+            <a href="{% url 'cards_single' u.id %}" class="btn btn-primary">Dettagli</a>
+            
+        </td>
+    </tr>
+    {% endfor %}
+    
+  </tbody>
+</table>
+
+
+{% endblock page_content %}

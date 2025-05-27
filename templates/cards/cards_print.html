@@ -1,0 +1,25 @@
+
+{% extends "base.html" %}
+
+{% block page_content %}
+
+
+<h1>Stampa nuove tessere</h1>
+
+<p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Veritatis amet quis porro minima eius reprehenderit est tenetur nesciunt nam. Id ab velit distinctio porro laboriosam. Ratione sunt aut nam molestias.</p>
+<hr>
+
+<form action="{% url 'cards_print_gen' %}" method="post">
+    {% csrf_token %}
+    <!--numero tessere-->
+    <div class="mb-3">
+        <label for="num_cards" class="form-label">Numero di tessere da stampare</label>
+        <input type="number" class="form-control" id="num_cards" name="num_cards" placeholder="Inserisci il numero di tessere da stampare" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Stampa</button>
+</form>
+
+
+
+{% endblock page_content %}

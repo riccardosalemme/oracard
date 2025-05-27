@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+
+<h1>{{user.name}} {{user.surname}}</h1>
+<!--torna alla gestione con freccia-->
+<a href="{% url 'cards' %}" class="">Torna alla gestione</a>
+
+<table class="table">
+  <tbody>
+    <tr>
+      <th>Categoria</th>
+      <td>{{user.category.name}}</td>
+    </tr>
+    <tr>
+      <th>Totale speso</th>
+      <td>{{user.negative_balance}} €</td>
+    </tr>
+    <tr>
+      <th>Totale ricaricato</th>
+      <td>{{user.positive_balance}} €</td>
+    </tr>
+    <tr {% if user.total_spent > 0 %}class="table-success"{% else %}class="table-danger"{% endif %}>
+      <th>Saldo carta</th>
+      <td>{{user.total_spent}} €</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+
+<h3>Ricarica carta</h3>
+
+{% if cc|length <= 0 %}
+
+<div class="alert alert-danger" role="alert">
+  Non è possibile ricaricare la carta di {{user.name}} {{user.surname}} perché non ha nessuna carta associata.
+</div>
+
+{% else %}
+
+<form action="{% url 'cards_single' user.id %}" method="POST">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label for="amount" class="form-label">Importo</label>
+    <input type="number" step=".01" min="0.01" class="form-control" id="amount" name="amount" placeholder="0.00 €">
+  </div>
+  <div class="mb-3">
+    <label for="notes" class="form-label">Note</label>
+    <input type="text" class="form-control" id="notes" name="notes" placeholder="Note">
+  </div>
+  <div class="mb-3">
+    <label for="category" class="form-label">Categoria</label>
+    <select class="form-select" id="category" name="category">
+      {% for x in tc %}
+        <option value="{{x.id}}">{{x.name}}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <!-- button confirm-->
+  <button type="submit" class="btn btn-primary">Ricarica sulla carta di {{user.name}} {{user.surname}}</button>
+</form>
+
+{% endif %}
+
+
+<hr>
+
+<h3>Transazioni</h3>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Data</th>
+        <th scope="col">Categoria</th>
+        <th scope="col">Ammonatre</th>
+        <th scope="col">Numero tessera</th>
+        <th scope="col">Note</th>
+        <th scope="col">Effettuata da</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for x in tr %}
+    <tr {% if x.amount > 0 %}class="table-success"{% else %}class="table-danger"{% endif %}>
+        <th scope="row">{{x.id}}</th>
+        <td>{{x.created_at}}</td>
+        <td>{{x.category.name}}</td>
+        <td>{{x.amount}} €</td>
+        <td>{{x.card_id.card_number}}</td>
+        <td>{{x.notes}}</td>
+        <td>{{x.created_by}}</td>
+
+    </tr>
+    {% endfor %}
+    
+  </tbody>
+</table>
+
+<hr>
+
+<h3>Tessere attive</h3>
+
+{% if cc %}
+<p>Questa persona ha {{cc|length}} tessere attive.</p>
+<div>
+  <form action="{% url 'cards_gen' %}" method="POST">
+    <!--nuova tessera-->
+    {% csrf_token %}
+    <input type="id" name="user_id" value="{{user.id}}" hidden>
+    <input type="text" name="notes" value="" placeholder="Note smarrimento o furto" class="form-control mb-2" required>
+    <input type="text" name="card_number" value="" placeholder="Numero tessera" class="form-control mb-2" required>
+    <button type="submit" class="btn btn-warning">Disattiva e associa nuova</button>
+  </form>
+</div>
+{% else %}
+<p>Questa persona non ha tessere attive.</p>
+<div>
+  <form action="{% url 'cards_gen' %}" method="POST">
+    <!--nuova tessera-->
+    {% csrf_token %}
+    <input type="id" name="user_id" value="{{user.id}}" hidden>
+    <input type="text" name="card_number" value="" placeholder="Numero tessera" class="form-control mb-2" required>
+    <button type="submit" class="btn btn-success">Associa tessera</button>
+  </form>
+</div>
+{% endif %}
+
+
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+        <th scope="col">N.</th>
+        <th scope="col"></th>
+        <th scope="col">Data aggiornamento</th>
+        <th scope="col">Stato</th>
+        <th scope="col">User</th>
+        <th scope="col">Note</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for x in cc %}
+    <tr {% if x.status == 'active' %}class="table-success"{% else %}class="table-warning"{% endif %}>
+        <th scope="row">{{x.card.id}}</th>
+        <td>{{x.card.card_number}}</td>
+        <td>{{x.updated_at}}</td>
+        <td>{{x.status}}</td>
+        <td>{{x.created_by}}</td>
+        <td>{{x.notes}}</td>
+    </tr>
+    {% endfor %}
+    
+  </tbody>
+</table>
+
+
+
+
+{% endblock page_content %}
