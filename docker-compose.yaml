@@ -46,7 +46,7 @@ services:
     volumes:
       - .:/app
     ports:
-      - "8000:8000"
+      - "8877:8877"
     depends_on:
       - db
     environment:

@@ -7,4 +7,4 @@ COPY . .
 EXPOSE 8000
 # RUN python manage.py migrate
 # RUN DJANGO_SUPERUSER_PASSWORD=admin python manage.py createsuperuser --no-input --username=admin --email me@riccardo.top
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8877"]
