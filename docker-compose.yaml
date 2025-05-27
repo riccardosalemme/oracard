@@ -47,21 +47,21 @@ services:
       - .:/app
     ports:
       - "8877:8877"
-    deploy:
-      labels:
-        # - traefik.enable=true
-        # - "traefik.http.routers.<unique_router_name>.rule=Host(`coolify.io`) && PathPrefix(`/`)"
-        # - traefik.http.routers.<unique_router_name>.entryPoints=http
 
-        - "traefik.enable=true"
-        - "traefik.http.routers.myrouter.rule=Host(`coolify.io`) && PathPrefix(`/`)"
-        - "traefik.http.routers.myrouter.entryPoints=http"
-        - "traefik.http.routers.myrouter.middlewares=https-redirect"
-        - "traefik.http.routers.myrouter-secure.rule=Host(`coolify.io`) && PathPrefix(`/`)"
-        - "traefik.http.routers.myrouter-secure.entryPoints=https"
-        - "traefik.http.routers.myrouter-secure.tls=true"
-        - "traefik.http.routers.myrouter-secure.tls.certresolver=myresolver"
-        - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+    labels:
+      # - traefik.enable=true
+      # - "traefik.http.routers.<unique_router_name>.rule=Host(`lab.riccardo.top`) && PathPrefix(`/`)"
+      # - traefik.http.routers.<unique_router_name>.entryPoints=http
+
+      - "traefik.enable=true"
+      - "traefik.http.routers.myrouter.rule=Host(`lab.riccardo.top`) && PathPrefix(`/`)"
+      - "traefik.http.routers.myrouter.entryPoints=http"
+      - "traefik.http.routers.myrouter.middlewares=https-redirect"
+      - "traefik.http.routers.myrouter-secure.rule=Host(`lab.riccardo.top`) && PathPrefix(`/`)"
+      - "traefik.http.routers.myrouter-secure.entryPoints=https"
+      - "traefik.http.routers.myrouter-secure.tls=true"
+      - "traefik.http.routers.myrouter-secure.tls.certresolver=myresolver"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
     depends_on:
       - db
     environment:
