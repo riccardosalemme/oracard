@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+<!-- Messages -->
+
+{% if message %}
+
+{% if message_type == 'error' %}
+<div class="alert alert-danger" role="alert">
+    {{ message }}
+</div>
+{% elif message_type == 'success' %}
+<div class="alert alert-success" role="alert">
+    {{ message }}
+</div>
+{% elif message_type == 'warning' %}
+<div class="alert alert-warning" role="alert">
+    {{ message }}
+</div>
+{% else %}
+<div class="alert alert-info" role="alert">
+    {{ message }}
+</div>
+{% endif %}
+
+<div>
+    <a href="{{ redirect_url }}" class="btn btn-primary">Clicca qui per continuare</a>
+</div>
+
+{% endif %}
+
+<!-- End messages -->
+  
+{% endblock page_content %}

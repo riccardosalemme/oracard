@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+
+<h1>BAR | Scansione tessera</h1>
+<hr>
+
+<!-- Messages -->
+
+{% if messages %}
+{% for message in messages %}
+
+{% if message.tag == 'error' %}
+<div class="alert alert-danger" role="alert">
+    {{ message.text }}
+</div>
+{% elif message.tag == 'success' %}
+<div class="alert alert-success" role="alert">
+    {{ message.text }}
+</div>
+{% elif message.tag == 'warning' %}
+<div class="alert alert-warning" role="alert">
+    {{ message.text }}
+</div>
+{% else %}
+<div class="alert alert-info" role="alert">
+    {{ message.text }}
+</div>
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
+<!-- End messages -->
+
+<!-- Scan -->
+
+<h5>Scansiona la tessera o inserisci il numero tessera per iniziare</h5>
+<form action="{% url 'bar' %}" method="post">
+  {% csrf_token %}
+  <div class="row">
+    <label for="card_number" class="form-label">Numero tessera</label>
+    <div class="col-md-6">
+      <input type="number" min="0" step="1" class="form-control" id="card_number" name="card_number" placeholder="Codice numerico tessera">
+    </div>
+    
+    <input type="text" class="form-control" id="card_code" name="card_code" hidden>
+
+    <div class="col-md-6">
+      <button type="submit" class="btn btn-primary" id="scan">Inizia scansione</button>
+    </div>
+  </div>
+  
+</form>
+
+<script>
+        
+    let code = "";
+    let reading = false;
+
+    let cardNumberInput = document.getElementById('card_code');
+    let cardIdInput = document.getElementById('card_number');
+    let button = document.getElementById('scan');
+
+    window.addEventListener('keypress', e => {
+
+    if (e.keyCode === 13) {
+            if(code.length >= 36) {
+                console.log("Code: " + code);
+                cardNumberInput.value = code;
+                cardIdInput.value = "";
+                button.click();
+            }
+        } else {
+            code += e.key;      
+        }
+
+        if(!reading) {
+            reading = true;
+            setTimeout(() => {
+                code = "";
+                reading = false;
+            }, 1500);
+        }
+    });
+
+  </script>
+
+  <!-- END Scan -->
+
+  
+{% endblock page_content %}

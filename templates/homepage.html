@@ -4,16 +4,27 @@
 
 
 <h1>
-    This is the Homepage
+    Istruzioni per l'uso
 </h1>
 
+<p>
+    <i>In arrivo...</i>
+</p>
 
+<hr>
 
-<!-- <p>If you can see this, means you are already login</p>
-<p>If you try to go back to login page, you will be redirected here</p>
-<p>Try to go to <a href={% url 'login' %}>Login</a></p>
+<h1>Pagine disponibili</h1>
 
-<p>To Logout:
-    <a href={% url 'logout' %}> Click here</a></p> -->
+<ul>
+    <li><a href="/bar">Area BAR</a></li>
+    <li><a href="/cards">Gestione tessere</a></li>
+    <li><a href="/cards_print">Stampa tessere</a></li>
+    <li><a href="/admin" target="_blank">Admin</a></li>
+    <li><a href="/transaction-summary">Totali</a></li>
+
+    <li><a href="/card_info" target="_blank">Card info</a></li>
+    <li><a href="/login">Login</a></li>
+    <li><a href="/logout">Logout</a></li>
+</ul>
 
 {% endblock page_content %}

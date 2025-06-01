@@ -4,7 +4,7 @@ from pathlib import Path
 import os
 from core.settings import STATIC_ROOT
 
-def generate_qr_pdf(data, card_image='card.png'):
+def generate_qr_pdf(data, card_image='card_lg.png'):
     # ----------------------------
     # Configuration
     # ----------------------------

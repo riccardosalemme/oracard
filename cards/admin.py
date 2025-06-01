@@ -40,12 +40,12 @@ class CardAdmin(admin.ModelAdmin):
 #     ordering = ('user__name', 'user__surname')
 #     list_filter = ('status', 'created_at', 'updated_at', 'created_by')
 
-@admin.register(Transaction)
-class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('user_id', 'card_id', 'amount', 'notes', 'category', 'created_at', 'updated_at')
-    search_fields = ('user__name', 'user__surname', 'card__card_number', 'notes')
-    ordering = ('-created_at',)
-    list_filter = ('category', 'created_at', 'updated_at', 'created_by')
+# @admin.register(Transaction)
+# class TransactionAdmin(admin.ModelAdmin):
+#     list_display = ('user_id', 'card_id', 'amount', 'notes', 'category', 'created_at', 'updated_at')
+#     search_fields = ('user__name', 'user__surname', 'card__card_number', 'notes')
+#     ordering = ('-created_at',)
+#     list_filter = ('category', 'created_at', 'updated_at', 'created_by')
 
 
 @admin.register(TransactionCategory)
@@ -84,3 +84,19 @@ class UserCardAdmin(ImportExportModelAdmin):
     search_fields = ('user__name', 'user__surname', 'card__card_number')
     ordering = ('user__name', 'user__surname')
     list_filter = ('status', 'created_at', 'updated_at', 'created_by')
+
+
+class TransactionResource(resources.ModelResource):
+    class Meta:
+        model = Transaction
+        # fields = ('user_id', 'card_id', 'amount', 'notes', 'category', 'created_at', 'updated_at')
+        fields = ('user_id__name', 'user_id__surname', 'card_id__card_number', 'amount', 'notes', 'category__name', 'created_at', 'updated_at')
+
+@admin.register(Transaction)
+class TransactionAdmin(ImportExportModelAdmin):
+    resource_classes = [TransactionResource]
+    list_display = ('user_id', 'card_id', 'amount', 'notes', 'category', 'created_at', 'updated_at')
+    search_fields = ('user__name', 'user__surname', 'card__card_number', 'notes')
+    ordering = ('-created_at',)
+    list_filter = ('category', 'created_at', 'updated_at', 'created_by')
+

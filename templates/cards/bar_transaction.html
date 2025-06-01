@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+
+
+<h1>{{ user.name }} {{ user.surname }}</h1>
+<a href="{% url 'bar' %}">Torna alla scansione</a>
+
+<div class="mb-4"></div>
+
+<!-- Messages -->
+
+{% if messages %}
+{% for message in messages %}
+
+{% if message.tag == 'error' %}
+<div class="alert alert-danger" role="alert">
+    {{ message.text }}
+</div>
+{% elif message.tag == 'success' %}
+<div class="alert alert-success" role="alert">
+    {{ message.text }}
+</div>
+{% elif message.tag == 'warning' %}
+<div class="alert alert-warning" role="alert">
+    {{ message.text }}
+</div>
+{% else %}
+<div class="alert alert-info" role="alert">
+    {{ message.text }}
+</div>
+{% endif %}
+
+{% endfor %}
+{% endif %}
+
+<!-- End messages -->
+
+<hr>
+
+<style>
+  .numpad-button {
+    width: 80px;
+    height: 80px;
+    font-size: 24px;
+    margin: 5px;
+  }
+  .numpad-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 280px;
+    margin: auto;
+  }
+  #numpad-display {
+    text-align: right;
+    font-size: 24px;
+  }
+  #live-display {
+    font-size: 48px;
+    color: green;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+</style>
+
+  
+<div class="row">
+  <div class="col-6">
+    <!-- User info -->
+    {% if user %}
+    <h5>Informazioni</h5>
+    <table class="table table-striped">
+      <tbody>
+          <tr>
+              <th scope="row">Nome</th>
+              <td>{{ user.name }}</td>
+          </tr>
+          <tr>
+              <th scope="row">Cognome</th>
+              <td>{{ user.surname }}</td>
+          </tr>
+          <tr>
+              <th scope="row">Categoria</th>
+              <td>{{ user.category.name }}</td>
+          </tr>
+          <tr class="table-info">
+              <th scope="row">Saldo</th>
+              <td><b>{{ balance|floatformat:2 }} €</b></td>
+          </tr>
+      
+      </tbody>
+    </table>
+    {% endif %}
+    <!-- END User info -->
+  </div>
+
+  <div class="col-6">
+    <div class="container text-center">
+    <div id="live-display">€ 0.00</div>
+
+    <!-- Form -->
+    <!-- <form id="numpad-form" onsubmit="handleSubmit(event)"> -->
+    <form action="{% url 'bar_transaction' id=user.id %}" method="post" id="numpad-form" onsubmit="handleSubmit(event)">
+      {% csrf_token %}
+      <input type="number" class="form-control" id="card_code" name="card_code" hidden value="{{ card_id }}">
+      <input type="number" class="form-control" id="user_id" name="user_id" hidden value="{{ user_id }}">
+
+      <input type="number" min="0" step="0.01" class="form-control" id="amount" name="amount" readonly hidden value="0">
+
+      <input id="numpad-display" class="form-control mb-3" type="text" inputmode="decimal" step="any" readonly hidden> 
+
+      <div class="numpad-container">
+        <!-- Digits -->
+        <button type="button" class="btn btn-outline-dark numpad-button" onclick="appendValue('1')">1</button>
+        <button type="button" class="btn btn-outline-dark numpad-button" onclick="appendValue('2')">2</button>
+        <button type="button" class="btn btn-outline-dark numpad-button" onclick="appendValue('3')">3</button>
+        <button type="button" class="btn btn-outline-dark numpad-button" onclick="appendValue('4')">4</button>
+        <button type="button" class="btn btn-outline-dark numpad-button" onclick="appendValue('5')">5</button>
+        <button type="button" class="btn btn-outline-dark numpad-button" onclick="appendValue('6')">6</button>
+        <button type="button" class="btn btn-outline-dark numpad-button" onclick="appendValue('7')">7</button>
+        <button type="button" class="btn btn-outline-dark numpad-button" onclick="appendValue('8')">8</button>
+        <button type="button" class="btn btn-outline-dark numpad-button" onclick="appendValue('9')">9</button>
+
+        <!-- Swapped: Decimal first, then C -->
+        <button type="button" class="btn btn-secondary numpad-button" onclick="appendDecimal()">.</button>
+        <button type="button" class="btn btn-outline-dark numpad-button" onclick="appendValue('0')">0</button>
+        <button type="button" class="btn btn-danger numpad-button" onclick="clearDisplay()">C</button>
+
+        <!-- Delete Button -->
+        <button type="button" class="btn btn-warning numpad-button w-100" onclick="deleteLast()">⌫</button>
+      </div>
+
+      <!-- Hidden submit trigger -->
+      <input type="submit" hidden />
+    </form>
+  </div>
+  </div>
+</div>
+
+
+<!-- Bootstrap Modal -->
+  <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Conferma pagamento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Conferma il pagamento di € <strong id="modal-value">0</strong><br>
+          per l'utente <strong>{{ user.name }} {{ user.surname }}</strong>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="clearDisplay()">Annulla</button>
+          <button type="button" class="btn btn-success" onclick="submitConfirmed()">Conferma</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  {% if trs %}
+
+  <script>
+    // redirect to bar home after 3 seconds
+    setTimeout(function() {
+        window.location.href = "{% url 'bar' %}";
+    }, 3000);
+  </script>
+
+  {% endif %}
+
+  <script>
+  const display = document.getElementById('numpad-display');
+  const liveDisplay = document.getElementById('live-display');
+  const modalValue = document.getElementById('modal-value');
+  const confirmModalEl = document.getElementById('confirmModal');
+  const numpadForm = document.getElementById('numpad-form');
+  const amountInput = document.getElementById('amount');
+  const confirmModal = new bootstrap.Modal(confirmModalEl);
+
+  function updateLiveDisplay() {
+    liveDisplay.textContent = '€ ' + display.value  || '';
+  }
+
+  function appendValue(val) {
+    let current = display.value;
+    const parts = current.split('.');
+    if (parts.length === 2 && parts[1].length >= 2) return;
+
+    display.value += val;
+    updateLiveDisplay();
+  }
+
+  function appendDecimal() {
+    if (!display.value.includes('.')) {
+      display.value += display.value === '' ? '0.' : '.';
+      updateLiveDisplay();
+    }
+  }
+
+  function clearDisplay() {
+    display.value = '';
+    updateLiveDisplay();
+  }
+
+  function deleteLast() {
+    display.value = display.value.slice(0, -1);
+    updateLiveDisplay();
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    // convert display value to number and set it to amount input
+    const amount = parseFloat(display.value);
+    if (isNaN(amount) || amount <= 0) {
+      alert("Please enter a valid amount.");
+      return;
+    }
+    amountInput.value = amount.toFixed(2); // Set the amount input value
+
+    const value = display.value;
+    if (!value) return;
+
+    modalValue.textContent = value;
+    confirmModal.show();
+  }
+
+  function submitConfirmed() {
+    confirmModal.hide();
+    numpadForm.submit()
+
+    // alert("Form submitted with value: " + display.value);
+  }
+
+  // Keyboard input
+  document.addEventListener('keydown', (e) => {
+    const key = e.key;
+
+    if (!isNaN(key)) {
+      appendValue(key);
+    } else if (key === '.') {
+      appendDecimal();
+    } else if (key === 'Backspace') {
+      deleteLast();
+    } else if (key.toLowerCase() === 'c') {
+      clearDisplay();
+    } else if (key === 'Enter') {
+      // Handle Enter differently if modal is visible
+      if (confirmModalEl.classList.contains('show')) {
+        submitConfirmed();
+      } else {
+        document.getElementById('numpad-form').requestSubmit();
+      }
+    } else if (key === '+') {
+      window.location.href = "{% url 'bar' %}";
+    }
+  });
+</script>
+
+
+{% endblock page_content %}

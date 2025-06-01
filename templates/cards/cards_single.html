@@ -1,11 +1,39 @@
 {% extends "base.html" %}
-
 {% block page_content %}
 
 
 <h1>{{user.name}} {{user.surname}}</h1>
-<!--torna alla gestione con freccia-->
 <a href="{% url 'cards' %}" class="">Torna alla gestione</a>
+
+<div class="mb-4"></div>
+
+<!-- Messages -->
+
+{% if message %}
+
+{% if message_type == 'error' %}
+<div class="alert alert-danger" role="alert">
+    {{ message }}
+</div>
+{% elif message_type == 'success' %}
+<div class="alert alert-success" role="alert">
+    {{ message }}
+</div>
+{% elif message_type == 'warning' %}
+<div class="alert alert-warning" role="alert">
+    {{ message }}
+</div>
+{% else %}
+<div class="alert alert-info" role="alert">
+    {{ message }}
+</div>
+{% endif %}
+
+{% endif %}
+
+<!-- End messages -->
+
+<!-- User INFO -->
 
 <table class="table">
   <tbody>
@@ -28,24 +56,25 @@
   </tbody>
 </table>
 
+<!-- END User INFO -->
+
+
+<!-- Ricardica Carta -->
+
 <hr>
-
-
 <h3>Ricarica carta</h3>
 
 {% if cc|length <= 0 %}
-
 <div class="alert alert-danger" role="alert">
   Non è possibile ricaricare la carta di {{user.name}} {{user.surname}} perché non ha nessuna carta associata.
 </div>
-
 {% else %}
 
 <form action="{% url 'cards_single' user.id %}" method="POST">
   {% csrf_token %}
   <div class="mb-3">
     <label for="amount" class="form-label">Importo</label>
-    <input type="number" step=".01" min="0.01" class="form-control" id="amount" name="amount" placeholder="0.00 €">
+    <input required type="number" step=".01" min="0.01" class="form-control" id="amount" name="amount" placeholder="0.00 €">
   </div>
   <div class="mb-3">
     <label for="notes" class="form-label">Note</label>
@@ -53,7 +82,8 @@
   </div>
   <div class="mb-3">
     <label for="category" class="form-label">Categoria</label>
-    <select class="form-select" id="category" name="category">
+    <select class="form-select" id="category" name="category" required>
+      <option value="" disabled selected>Seleziona categoria pagamento</option>
       {% for x in tc %}
         <option value="{{x.id}}">{{x.name}}</option>
       {% endfor %}
@@ -66,9 +96,12 @@
 
 {% endif %}
 
+<!-- END Ricarica Carta -->
+
+
+<!-- Transazioni -->
 
 <hr>
-
 <h3>Transazioni</h3>
 
 <table class="table table-striped">
@@ -77,7 +110,7 @@
         <th scope="col">#</th>
         <th scope="col">Data</th>
         <th scope="col">Categoria</th>
-        <th scope="col">Ammonatre</th>
+        <th scope="col">Ammontare</th>
         <th scope="col">Numero tessera</th>
         <th scope="col">Note</th>
         <th scope="col">Effettuata da</th>
@@ -90,30 +123,31 @@
         <td>{{x.created_at}}</td>
         <td>{{x.category.name}}</td>
         <td>{{x.amount}} €</td>
-        <td>{{x.card_id.card_number}}</td>
+        <td>{{x.card_id.id}}</td>
         <td>{{x.notes}}</td>
         <td>{{x.created_by}}</td>
 
     </tr>
     {% endfor %}
-    
   </tbody>
 </table>
 
-<hr>
+<!-- END Transazioni -->
 
+<hr>
 <h3>Tessere attive</h3>
 
 {% if cc %}
-<p>Questa persona ha {{cc|length}} tessere attive.</p>
+<p>Questa persona ha registrato <b>{{cc|length}}</b> tessere.</p>
 <div>
   <form action="{% url 'cards_gen' %}" method="POST">
-    <!--nuova tessera-->
+    <!--cambio tessera-->
     {% csrf_token %}
     <input type="id" name="user_id" value="{{user.id}}" hidden>
-    <input type="text" name="notes" value="" placeholder="Note smarrimento o furto" class="form-control mb-2" required>
-    <input type="text" name="card_number" value="" placeholder="Numero tessera" class="form-control mb-2" required>
-    <button type="submit" class="btn btn-warning">Disattiva e associa nuova</button>
+    <input type="text" name="suspnotes" id="notes_2" value="" placeholder="Note smarrimento o furto" class="form-control mb-2" required>
+    <input type="text" id="card_number_1" name="card_number" value="" placeholder="Numero tessera" class="form-control mb-2" readonly required hidden>
+    <button class="btn btn-primary" onclick="saveNotes()" id="save-note-btn">Salva note smarrimento</button>
+    <button type="submit" class="btn btn-warning" id="tessera" hidden>Disattiva e associa nuova</button>
   </form>
 </div>
 {% else %}
@@ -123,19 +157,88 @@
     <!--nuova tessera-->
     {% csrf_token %}
     <input type="id" name="user_id" value="{{user.id}}" hidden>
-    <input type="text" name="card_number" value="" placeholder="Numero tessera" class="form-control mb-2" required>
-    <button type="submit" class="btn btn-success">Associa tessera</button>
+    <input type="text" id="card_number_2" name="card_number" value="" placeholder="Numero tessera" class="form-control mb-2" required readonly>
+    <button type="submit" class="btn btn-success" id="tessera">Associa prima tessera</button>
   </form>
 </div>
 {% endif %}
 
+<script>
+  let cardNumberInput;
+
+  function saveNotes(){
+    // Get the notes input value
+    let notesInput = document.getElementById('notes_2');
+    let notesValue = notesInput.value;
+
+    let saveNoteBtn = document.getElementById('save-note-btn');
+
+    let cardNumberInput = document.getElementById('card_number_1');
+    let button = document.getElementById('tessera');
+
+    // Check if the notes input is not empty
+    if (notesValue.trim() === "") {
+        alert("Per favore, inserisci le note.");
+        return;
+    }
+    
+    button.hidden = false; //show the button to submit the form
+    cardNumberInput.hidden = false; //show the card number input
+    notesInput.setAttribute("readonly", "readonly");
+    saveNoteBtn.disabled = true; //disable the save notes button to prevent multiple clicks
+
+  }
+</script>
+
+{% if cc %}
+<script>
+   cardNumberInput = document.getElementById('card_number_1');
+</script>
+{% else %}
+<script>
+   cardNumberInput = document.getElementById('card_number_2');
+</script>
+{% endif %}
+
+<script>
+        
+    let code = "";
+    let reading = false;
+
+    let button = document.getElementById('tessera');
+
+    window.addEventListener('keypress', e => {
+
+    if (e.keyCode === 13) {
+      e.preventDefault();
+            if(code.length >= 36) {
+                console.log(code);
+                cardNumberInput.value = code;
+                code = "";
+                
+            }
+        } else {
+            code += e.key; //while this is not an 'enter' it stores the every key            
+        }
+
+        // run a timeout of 200ms at the first read and clear everything
+        if(!reading) {
+            reading = true;
+            setTimeout(() => {
+                code = "";
+                reading = false;
+            }, 1000);  //200 works fine for me but you can adjust it
+        }
+    });
+
+
+    </script>
 
 
 <table class="table table-striped">
   <thead>
     <tr>
-        <th scope="col">N.</th>
-        <th scope="col"></th>
+        <th scope="col">Numero tessera</th>
         <th scope="col">Data aggiornamento</th>
         <th scope="col">Stato</th>
         <th scope="col">User</th>
@@ -146,7 +249,6 @@
     {% for x in cc %}
     <tr {% if x.status == 'active' %}class="table-success"{% else %}class="table-warning"{% endif %}>
         <th scope="row">{{x.card.id}}</th>
-        <td>{{x.card.card_number}}</td>
         <td>{{x.updated_at}}</td>
         <td>{{x.status}}</td>
         <td>{{x.created_by}}</td>
