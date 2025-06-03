@@ -31,6 +31,9 @@
 
          <ul class="navbar-nav d-flex">
             <li class="nav-item">
+                <a class="nav-link active" aria-current="page" onclick="toggleFullScreen()">Schermo intero</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link active" aria-current="page" href="/admin" target="_blank">Admin</a>
             </li>
             {% if request.user.is_authenticated %}
@@ -64,5 +67,28 @@
             - Copyright © 2025
         </div>
     </footer>
+
+    <script>
+        function toggleFullScreen() {
+        if (!document.fullscreenElement &&    // alternative standard method
+            !document.mozFullScreenElement && !document.webkitFullscreenElement) {  // current working methods
+            if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen();
+            } else if (document.documentElement.mozRequestFullScreen) {
+            document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+            document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+            }
+        } else {
+            if (document.cancelFullScreen) {
+                document.cancelFullScreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitCancelFullScreen) {
+                document.webkitCancelFullScreen();
+            }
+        }
+        }
+    </script>
  </body>
 </html>
