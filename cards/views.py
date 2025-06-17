@@ -80,6 +80,13 @@ def bar_transaction(request, id):
 
             logger.error(f"Saldo insufficiente per l'utente {user.name} {user.surname}. Saldo attuale: {Decimal(balance)}, Importo della transazione: {Decimal(amount)}. operazione risultato: {Decimal(balance) + Decimal(amount)} . amount {amount}")
 
+
+            from decimal import localcontext
+
+            with localcontext() as ctx:
+                ctx.prec = 3
+                logger.error(f"Saldo insufficiente msg err per l'utente {user.name} {user.surname}. Saldo attuale: {Decimal(balance)}, Importo della transazione: {Decimal(amount)}. operazione risultato: {Decimal(balance) + Decimal(amount)} . amount {amount}")
+
             messages.append({
                 'tag': 'error',
                 'text': 'Saldo insufficiente per questa transazione.'
