@@ -73,7 +73,9 @@ def bar_transaction(request, id):
         # calculate user balance
         transactions = Transaction.objects.filter(user_id=user)
         balance = sum(t.amount for t in transactions)
-        if Decimal(balance) + Decimal(amount) < Decimal(0):
+
+        # if Decimal(balance) + Decimal(amount) < Decimal(0):
+        if float(balance) + float(amount) < 0:
             
             import logging
             logger = logging.getLogger(__name__)
