@@ -74,18 +74,20 @@ def bar_transaction(request, id):
         transactions = Transaction.objects.filter(user_id=user)
         balance = sum(t.amount for t in transactions)
         if Decimal(balance) + Decimal(amount) < Decimal(0):
-            print(f"logg Balance: {balance}, Amount: {amount}")
+            
             import logging
             logger = logging.getLogger(__name__)
 
-            logger.error(f"Saldo insufficiente per l'utente {user.name} {user.surname}. Saldo attuale: {Decimal(balance)}, Importo della transazione: {Decimal(amount)}. operazione risultato: {Decimal(balance) + Decimal(amount)} . amount {amount}")
+            logger.error(f"balance {float(balance)} + amount {float(amount)}  = {float(balance) + float(amount)}")
+
+            # logger.error(f"Saldo insufficiente per l'utente {user.name} {user.surname}. Saldo attuale: {Decimal(balance)}, Importo della transazione: {Decimal(amount)}. operazione risultato: {Decimal(balance) + Decimal(amount)} . amount {amount}")
 
 
-            from decimal import localcontext
+            # from decimal import localcontext
 
-            with localcontext() as ctx:
-                ctx.prec = 3
-                logger.error(f"Saldo insufficiente msg err per l'utente {user.name} {user.surname}. Saldo attuale: {Decimal(balance)}, Importo della transazione: {Decimal(amount)}. operazione risultato: {Decimal(balance) + Decimal(amount)} . amount {amount}")
+            # with localcontext() as ctx:
+            #     ctx.prec = 3
+            #     logger.error(f"Saldo insufficiente msg err per l'utente {user.name} {user.surname}. Saldo attuale: {Decimal(balance)}, Importo della transazione: {Decimal(amount)}. operazione risultato: {Decimal(balance) + Decimal(amount)} . amount {amount}")
 
             messages.append({
                 'tag': 'error',
