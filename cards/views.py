@@ -78,7 +78,7 @@ def bar_transaction(request, id):
             import logging
             logger = logging.getLogger(__name__)
 
-            logger.error(f"Saldo insufficiente per l'utente {user.name} {user.surname}. Saldo attuale: {balance}, Importo della transazione: {Decimal(amount)}. operazione risultato: {balance + Decimal(amount)}")
+            logger.error(f"Saldo insufficiente per l'utente {user.name} {user.surname}. Saldo attuale: {Decimal(balance)}, Importo della transazione: {Decimal(amount)}. operazione risultato: {Decimal(balance) + Decimal(amount)}")
 
             messages.append({
                 'tag': 'error',
