@@ -74,6 +74,7 @@ def bar_transaction(request, id):
         transactions = Transaction.objects.filter(user_id=user)
         balance = sum(t.amount for t in transactions)
         if balance + Decimal(amount) < 0.00:
+            print(f"logg Balance: {balance}, Amount: {amount}")
             messages.append({
                 'tag': 'error',
                 'text': 'Saldo insufficiente per questa transazione.'
