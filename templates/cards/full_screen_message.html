@@ -24,12 +24,24 @@
 </div>
 {% endif %}
 
-<div>
+<p>Premi <b>INVIO</b> per continuare o <a href="{{ redirect_url }}">clicca qui</a>.</p>
+
+<!-- <div>
     <a href="{{ redirect_url }}" class="btn btn-primary">Clicca qui per continuare</a>
-</div>
+</div> -->
 
 {% endif %}
 
 <!-- End messages -->
+
+
+<script>
+    // use enter key to redirect
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            window.location.href = "{{ redirect_url }}";
+        }
+    });
+</script>
   
 {% endblock page_content %}

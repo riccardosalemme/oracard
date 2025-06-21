@@ -91,16 +91,23 @@ def bar_transaction(request, id):
             #     ctx.prec = 3
             #     logger.error(f"Saldo insufficiente msg err per l'utente {user.name} {user.surname}. Saldo attuale: {Decimal(balance)}, Importo della transazione: {Decimal(amount)}. operazione risultato: {Decimal(balance) + Decimal(amount)} . amount {amount}")
 
-            messages.append({
-                'tag': 'error',
-                'text': 'Saldo insufficiente per questa transazione.'
-            })
-            return render(request, 'cards/bar_transaction.html', {
-                "user": user,
-                "balance": balance,
-                "messages": messages,
-                "trs": transaction_success
-            })
+            # messages.append({
+            #     'tag': 'error',
+            #     'text': 'Saldo insufficiente per questa transazione.'
+            # })
+            # return render(request, 'cards/bar_transaction.html', {
+            #     "user": user,
+            #     "balance": balance,
+            #     "messages": messages,
+            #     "trs": transaction_success
+            # })
+
+            message = 'Impossibile effettuare la transazione. Saldo insufficiente.'
+            message_type = 'error'
+            
+            # return redirect('cards_single', id=user.id)
+            return redirect(reverse('full_screen_message') + f'?message={message}&message_type={message_type}&redirect_url={reverse("bar_transaction", args=[user.id])}')
+        
 
         if card:
             transaction = Transaction(
@@ -112,11 +119,20 @@ def bar_transaction(request, id):
                 created_by=created_by
             )
             transaction.save()
-            messages.append({
-                'tag': 'success',
-                'text': 'Transazione creata con successo.'
-            })
-            transaction_success = True
+            # messages.append({
+            #     'tag': 'success',
+            #     'text': 'Transazione creata con successo.'
+            # })
+            # transaction_success = True
+
+            message = f'Transazione creata con successo. {user.name} {user.surname} ha speso {abs(amount)} €.'
+            message_type = 'success'
+            
+            # return redirect('cards_single', id=user.id)
+            return redirect(reverse('full_screen_message') + f'?message={message}&message_type={message_type}&redirect_url={reverse("bar")}')
+        
+            
+
             # return redirect('bar_transaction', id=user_id, messages=[{
             #     'tag': 'success',
             #     'text': 'Transazione creata con successo.'
